@@ -8,23 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-    <!--
-    ================================================================
-    EMAILJS SETUP — READ BEFORE DEPLOYING
-    ================================================================
-    1. Sign up at https://www.emailjs.com (free tier works fine)
-    2. Add an Email Service (Gmail) → copy the Service ID
-    3. Create Template #1 (Booking): use variables:
-         {{client_name}}, {{client_phone}}, {{client_email}},
-         {{vehicle_type}}, {{service_type}}, {{preferred_date}},
-         {{preferred_time}}, {{client_address}}, {{additional_notes}}
-    4. Create Template #2 (Reviews): use variables:
-         {{reviewer_name}}, {{rating}}, {{review_message}}
-    5. Go to Account → API Keys → copy your Public Key
-    6. Replace the 4 placeholder strings in the <script> at the bottom
-    ================================================================
-    -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <!-- Forms powered by FormSubmit (formsubmit.co) — no account needed -->
     <style>
         :root {
             --gold: #FFD700;
@@ -817,21 +801,18 @@
      JAVASCRIPT
 ================================================================ -->
 <script>
-// ================================================================
-// EMAILJS — REPLACE THESE 4 VALUES WITH YOUR REAL CREDENTIALS
-// ----------------------------------------------------------------
-// How to get them:
-//   PUBLIC_KEY   → emailjs.com → Account → API Keys
-//   SERVICE_ID   → emailjs.com → Email Services → your service ID
-//   BOOKING_TMPL → emailjs.com → Email Templates → booking template ID
-//   REVIEW_TMPL  → emailjs.com → Email Templates → review template ID
-// ================================================================
-const EJ_PUBLIC_KEY   = "p6WmGSLcrdpo5-w4u";
-const EJ_SERVICE_ID   = "service_omy98f8";
-const EJ_BOOKING_TMPL = "34edd64";
-const EJ_REVIEW_TMPL  = "9k8rn45";
+// ── FormSubmit endpoint ───────────────────────────────────────────
+const FS_URL = "https://formsubmit.co/ajax/shyndetails1@gmail.com";
 
-emailjs.init(EJ_PUBLIC_KEY);
+async function sendToFormSubmit(payload) {
+    const res = await fetch(FS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error("FormSubmit error " + res.status);
+    return res.json();
+}
 
 // ── Navbar scroll effect ──────────────────────────────────────────
 const navbar = document.getElementById('navbar');
@@ -873,19 +854,19 @@ document.getElementById('bookingForm').addEventListener('submit', async e => {
     e.preventDefault();
     const btn = document.getElementById('bookingBtn');
     btn.textContent = 'Sending…'; btn.classList.add('btn-loading');
-    const params = {
-        client_name:      document.getElementById('bkName').value,
-        client_phone:     document.getElementById('bkPhone').value,
-        client_email:     document.getElementById('bkEmail').value,
-        vehicle_type:     document.getElementById('bkVehicle').value,
-        service_type:     document.getElementById('bkService').value,
-        preferred_date:   document.getElementById('bkDate').value,
-        preferred_time:   document.getElementById('bkTime').value,
-        client_address:   document.getElementById('bkAddress').value,
-        additional_notes: document.getElementById('bkNotes').value || 'None',
-    };
     try {
-        await emailjs.send(EJ_SERVICE_ID, EJ_BOOKING_TMPL, params);
+        await sendToFormSubmit({
+            _subject: "New Booking Request — Shyn Details",
+            Name:     document.getElementById('bkName').value,
+            Phone:    document.getElementById('bkPhone').value,
+            Email:    document.getElementById('bkEmail').value,
+            Vehicle:  document.getElementById('bkVehicle').value,
+            Service:  document.getElementById('bkService').value,
+            Date:     document.getElementById('bkDate').value,
+            Time:     document.getElementById('bkTime').value,
+            Address:  document.getElementById('bkAddress').value,
+            Notes:    document.getElementById('bkNotes').value || 'None',
+        });
         document.getElementById('bookingForm').style.display = 'none';
         document.getElementById('bookingSuccess').classList.add('show');
     } catch(err) {
@@ -901,13 +882,13 @@ document.getElementById('reviewForm').addEventListener('submit', async e => {
     const btn = document.getElementById('reviewBtn');
     btn.textContent = 'Sending…'; btn.classList.add('btn-loading');
     const ratingEl = document.querySelector('input[name="rating"]:checked');
-    const params = {
-        reviewer_name:  document.getElementById('reviewName').value,
-        rating:         ratingEl ? ratingEl.value + ' / 5 stars' : 'Not specified',
-        review_message: document.getElementById('reviewText').value,
-    };
     try {
-        await emailjs.send(EJ_SERVICE_ID, EJ_REVIEW_TMPL, params);
+        await sendToFormSubmit({
+            _subject: "New Customer Review — Shyn Details",
+            Name:     document.getElementById('reviewName').value,
+            Rating:   ratingEl ? ratingEl.value + ' / 5 stars' : 'Not specified',
+            Review:   document.getElementById('reviewText').value,
+        });
         document.getElementById('reviewForm').style.display = 'none';
         document.getElementById('reviewSuccess').classList.add('show');
     } catch(err) {
