@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shyn Details — Houston's Premier Mobile Auto Detailing</title>
+    <meta name="description" content="Houston's premier mobile auto detailing. We come to you. Professional results guaranteed. Book today.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <!--
+    ================================================================
+    EMAILJS SETUP — READ BEFORE DEPLOYING
+    ================================================================
+    1. Sign up at https://www.emailjs.com (free tier works fine)
+    2. Add an Email Service (Gmail) → copy the Service ID
+    3. Create Template #1 (Booking): use variables:
+         {{client_name}}, {{client_phone}}, {{client_email}},
+         {{vehicle_type}}, {{service_type}}, {{preferred_date}},
+         {{preferred_time}}, {{client_address}}, {{additional_notes}}
+    4. Create Template #2 (Reviews): use variables:
+         {{reviewer_name}}, {{rating}}, {{review_message}}
+    5. Go to Account → API Keys → copy your Public Key
+    6. Replace the 4 placeholder strings in the <script> at the bottom
+    ================================================================
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        :root {
+            --gold: #FFD700;
+            --gold-dark: #B8860B;
+            --gold-dim: rgba(255,215,0,0.15);
+            --black: #0a0a0a;
+            --black-2: #111111;
+            --black-3: #1a1a1a;
+            --white: #ffffff;
+            --gray: #cccccc;
+            --gray-dim: #888888;
+            --heading: 'Bebas Neue', sans-serif;
+            --sub: 'Rajdhani', sans-serif;
+            --body: 'Lato', sans-serif;
+            --t: 0.3s ease;
+            --shadow-gold: 0 8px 32px rgba(255,215,0,0.2);
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+        body { background:var(--black); color:var(--white); font-family:var(--body); line-height:1.7; overflow-x:hidden; }
+        ::-webkit-scrollbar { width:5px; }
+        ::-webkit-scrollbar-track { background:var(--black); }
+        ::-webkit-scrollbar-thumb { background:var(--gold-dark); border-radius:3px; }
+        a { text-decoration:none; color:inherit; }
+        section { padding:100px 0; }
+        .container { max-width:1200px; margin:0 auto; padding:0 24px; }
+
+        /* === ANIMATIONS === */
+        @keyframes shimmer-text {
+            0%   { background-position:-200% center; }
+            100% { background-position: 200% center; }
+        }
+        @keyframes spotlight {
+            0%,100% { transform:translateX(-30%) translateY(-20%); opacity:.4; }
+            50%      { transform:translateX(30%)  translateY(20%);  opacity:.6; }
+        }
+        @keyframes fadeUp {
+            from { opacity:0; transform:translateY(36px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        @keyframes float {
+            0%,100% { transform:translateY(0); }
+            50%     { transform:translateY(-7px); }
+        }
+        .reveal { opacity:0; transform:translateY(40px); transition:opacity .7s ease, transform .7s ease; }
+        .reveal.visible { opacity:1; transform:translateY(0); }
+        .d1 { transition-delay:.1s; }
+        .d2 { transition-delay:.2s; }
+        .d3 { transition-delay:.3s; }
+        .d4 { transition-delay:.4s; }
+
+        /* === SHARED TYPOGRAPHY === */
+        .section-label {
+            font-family:var(--sub); font-weight:700; font-size:.82rem;
+            letter-spacing:4px; text-transform:uppercase; color:var(--gold); margin-bottom:10px;
+        }
+        .section-title {
+            font-family:var(--heading); font-size:clamp(2.4rem,5vw,3.8rem);
+            letter-spacing:2px; line-height:1.1; color:var(--white); margin-bottom:16px;
+        }
+        .section-title span { color:var(--gold); }
+        .gold-line { width:56px; height:3px; background:linear-gradient(90deg,var(--gold),var(--gold-dark)); margin-bottom:36px; }
+
+        /* === BUTTONS === */
+        .btn-primary {
+            display:inline-flex; align-items:center; gap:8px;
+            background:var(--gold); color:var(--black);
+            font-family:var(--sub); font-weight:700; font-size:.92rem;
+            letter-spacing:2px; text-transform:uppercase;
+            padding:14px 32px; border-radius:4px; border:none; cursor:pointer;
+            transition:background var(--t), transform var(--t), box-shadow var(--t);
+        }
+        .btn-primary:hover { background:var(--gold-dark); transform:translateY(-3px); box-shadow:var(--shadow-gold); }
+        .btn-outline {
+            display:inline-flex; align-items:center; gap:8px;
+            background:transparent; color:var(--gold);
+            font-family:var(--sub); font-weight:700; font-size:.92rem;
+            letter-spacing:2px; text-transform:uppercase;
+            padding:14px 32px; border-radius:4px; border:2px solid var(--gold); cursor:pointer;
+            transition:background var(--t), color var(--t), transform var(--t);
+        }
+        .btn-outline:hover { background:var(--gold); color:var(--black); transform:translateY(-3px); }
+        .btn-loading { opacity:.65; cursor:not-allowed; pointer-events:none; }
+
+        /* === NAVBAR === */
+        #navbar {
+            position:fixed; top:0; left:0; right:0; z-index:1000;
+            height:68px; padding:0 32px;
+            display:flex; align-items:center; justify-content:space-between;
+            transition:background var(--t), backdrop-filter var(--t);
+        }
+        #navbar.scrolled {
+            background:rgba(10,10,10,.93);
+            backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+            border-bottom:1px solid rgba(255,215,0,.08);
+        }
+        .nav-logo {
+            font-family:var(--heading); font-size:1.75rem; letter-spacing:3px;
+            display:flex; align-items:center; gap:8px;
+        }
+        .nav-logo .star { color:var(--gold); animation:float 3s ease-in-out infinite; }
+        .nav-links { display:flex; align-items:center; gap:30px; list-style:none; }
+        .nav-links a {
+            font-family:var(--sub); font-weight:600; font-size:.9rem;
+            letter-spacing:1px; text-transform:uppercase; color:var(--gray);
+            position:relative; transition:color var(--t);
+        }
+        .nav-links a::after {
+            content:''; position:absolute; bottom:-4px; left:0;
+            width:0; height:2px; background:var(--gold); transition:width var(--t);
+        }
+        .nav-links a:hover { color:var(--white); }
+        .nav-links a:hover::after { width:100%; }
+        .nav-cta {
+            background:var(--gold) !important; color:var(--black) !important;
+            padding:8px 20px; border-radius:4px;
+            font-weight:700 !important; transition:background var(--t), transform var(--t) !important;
+        }
+        .nav-cta::after { display:none !important; }
+        .nav-cta:hover { background:var(--gold-dark) !important; transform:translateY(-2px); }
+        .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none; padding:4px; }
+        .hamburger span { display:block; width:24px; height:2px; background:var(--white); transition:all var(--t); }
+        .hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity:0; }
+        .hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+        .mobile-menu {
+            display:none; position:fixed; top:68px; left:0; right:0;
+            background:rgba(10,10,10,.97); backdrop-filter:blur(14px);
+            padding:24px 32px; z-index:999;
+            border-bottom:1px solid rgba(255,215,0,.1);
+        }
+        .mobile-menu.open { display:block; }
+        .mobile-menu ul { list-style:none; display:flex; flex-direction:column; gap:4px; }
+        .mobile-menu a {
+            font-family:var(--sub); font-weight:600; font-size:1.05rem;
+            letter-spacing:2px; text-transform:uppercase; color:var(--gray);
+            display:block; padding:12px 0; border-bottom:1px solid rgba(255,255,255,.05);
+            transition:color var(--t);
+        }
+        .mobile-menu a:hover { color:var(--gold); }
+        .mobile-menu .nav-cta { display:inline-block; margin-top:12px; padding:12px 28px; }
+
+        /* === HERO === */
+        #home {
+            position:relative; min-height:100vh;
+            display:flex; flex-direction:column;
+            align-items:center; justify-content:center;
+            text-align:center; padding:0 24px; overflow:hidden;
+        }
+        .hero-bg {
+            position:absolute; inset:0;
+            background:
+                radial-gradient(ellipse at 50% 40%, rgba(184,134,11,.13) 0%, transparent 60%),
+                radial-gradient(ellipse at 90% 10%, rgba(255,215,0,.06) 0%, transparent 40%),
+                linear-gradient(180deg, #0a0a0a 0%, #0e0e0e 100%);
+        }
+        .hero-grid {
+            position:absolute; inset:0;
+            background-image:
+                linear-gradient(rgba(255,215,0,.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,215,0,.025) 1px, transparent 1px);
+            background-size:50px 50px;
+        }
+        .hero-spotlight {
+            position:absolute; width:700px; height:700px; border-radius:50%;
+            background:radial-gradient(circle, rgba(255,215,0,.07) 0%, transparent 70%);
+            animation:spotlight 9s ease-in-out infinite; pointer-events:none;
+        }
+        .hero-content { position:relative; z-index:2; max-width:920px; }
+        .hero-badge {
+            display:inline-flex; align-items:center; gap:8px;
+            font-family:var(--sub); font-weight:600; font-size:.82rem;
+            letter-spacing:3px; text-transform:uppercase; color:var(--gold);
+            border:1px solid rgba(255,215,0,.28); padding:6px 16px; border-radius:100px;
+            margin-bottom:28px; animation:fadeUp .8s ease both;
+        }
+        .hero-title {
+            font-family:var(--heading);
+            font-size:clamp(2.6rem, 7.5vw, 6.5rem);
+            letter-spacing:4px; line-height:1.05; margin-bottom:22px;
+            background:linear-gradient(90deg,#FFD700 0%,#fff 28%,#FFD700 50%,#B8860B 72%,#FFD700 100%);
+            background-size:200% auto;
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            background-clip:text;
+            animation:shimmer-text 5s linear infinite, fadeUp .8s ease .2s both;
+        }
+        .hero-sub {
+            font-family:var(--sub); font-size:clamp(1rem,2.5vw,1.35rem); font-weight:500;
+            letter-spacing:3px; text-transform:uppercase; color:var(--gray);
+            margin-bottom:40px; animation:fadeUp .8s ease .4s both;
+        }
+        .hero-ctas {
+            display:flex; gap:16px; justify-content:center; flex-wrap:wrap;
+            margin-bottom:56px; animation:fadeUp .8s ease .6s both;
+        }
+        .hero-tagline {
+            font-family:var(--sub); font-size:1rem; font-weight:400; font-style:italic;
+            color:rgba(255,255,255,.38); letter-spacing:1px; animation:fadeUp .8s ease .8s both;
+        }
+        .hero-scroll {
+            position:absolute; bottom:28px; left:50%; transform:translateX(-50%);
+            display:flex; flex-direction:column; align-items:center; gap:8px;
+            color:rgba(255,255,255,.28); font-family:var(--sub);
+            font-size:.72rem; letter-spacing:2px; text-transform:uppercase;
+            animation:fadeUp 1s ease 1.2s both;
+        }
+        .scroll-line {
+            width:1px; height:36px;
+            background:linear-gradient(180deg,rgba(255,215,0,.5),transparent);
+            animation:float 2s ease-in-out infinite;
+        }
+
+        /* === ABOUT === */
+        #about { background:var(--black-2); }
+        .about-grid { display:grid; grid-template-columns:1fr 1fr; gap:72px; align-items:start; }
+        .about-story p { color:var(--gray); font-size:.97rem; line-height:1.9; margin-bottom:18px; }
+        .about-story p:first-of-type { font-size:1.05rem; color:var(--white); }
+        .about-callout {
+            background:var(--black-3); border-left:3px solid var(--gold);
+            padding:18px 22px; margin-top:24px; border-radius:0 8px 8px 0;
+        }
+        .about-callout strong {
+            font-family:var(--sub); font-weight:700; font-size:.95rem;
+            color:var(--gold); letter-spacing:.5px; display:block;
+        }
+        .about-callout span { font-size:.88rem; color:var(--gray-dim); display:block; margin-top:4px; }
+        .about-right { display:flex; flex-direction:column; gap:22px; }
+        .about-mission {
+            background:linear-gradient(135deg,rgba(255,215,0,.07),rgba(184,134,11,.03));
+            border:1px solid rgba(255,215,0,.14); padding:28px; border-radius:12px;
+        }
+        .about-mission h3 {
+            font-family:var(--heading); font-size:1.5rem; letter-spacing:2px;
+            color:var(--gold); margin-bottom:10px;
+        }
+        .about-mission p { color:var(--gray); font-size:.92rem; line-height:1.8; }
+        .founders-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .founder-card {
+            background:var(--black-3); border:1px solid rgba(255,215,0,.12);
+            border-radius:12px; padding:24px; text-align:center;
+            transition:transform var(--t), border-color var(--t), box-shadow var(--t);
+        }
+        .founder-card:hover { transform:translateY(-6px); border-color:var(--gold); box-shadow:var(--shadow-gold); }
+        .founder-avatar {
+            width:60px; height:60px;
+            background:linear-gradient(135deg,var(--gold),var(--gold-dark));
+            border-radius:50%; display:flex; align-items:center; justify-content:center;
+            font-family:var(--heading); font-size:1.5rem; color:var(--black); margin:0 auto 14px;
+        }
+        .founder-name { font-family:var(--sub); font-weight:700; font-size:.95rem; letter-spacing:1px; margin-bottom:4px; }
+        .founder-role { font-family:var(--sub); font-size:.78rem; letter-spacing:1px; text-transform:uppercase; color:var(--gold); margin-bottom:8px; }
+        .founder-contact { font-size:.82rem; color:var(--gray-dim); }
+
+        /* === SERVICES === */
+        #services { background:var(--black); }
+        .services-hdr { text-align:center; margin-bottom:56px; }
+        .services-hdr .gold-line { margin:0 auto 16px; }
+        .services-disclaimer { font-family:var(--sub); font-size:.88rem; color:var(--gray-dim); font-style:italic; }
+        .svc-group { margin-bottom:56px; }
+        .svc-group-title {
+            font-family:var(--sub); font-weight:700; font-size:.9rem;
+            letter-spacing:4px; text-transform:uppercase; color:var(--gold);
+            margin-bottom:22px; display:flex; align-items:center; gap:12px;
+        }
+        .svc-group-title::after { content:''; flex:1; height:1px; background:rgba(255,215,0,.14); }
+        .svc-cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:22px; }
+        .svc-card {
+            background:var(--black-2); border:1px solid rgba(255,215,0,.14);
+            border-radius:12px; padding:30px 26px; position:relative; overflow:hidden;
+            transition:transform var(--t), border-color var(--t), box-shadow var(--t);
+        }
+        .svc-card::before {
+            content:''; position:absolute; inset:0;
+            background:linear-gradient(135deg,rgba(255,215,0,.04),transparent);
+            opacity:0; transition:opacity var(--t);
+        }
+        .svc-card:hover { transform:translateY(-6px); border-color:var(--gold); box-shadow:0 12px 40px rgba(255,215,0,.17); }
+        .svc-card:hover::before { opacity:1; }
+        .svc-icon { font-size:2.1rem; margin-bottom:14px; display:block; }
+        .svc-name { font-family:var(--heading); font-size:1.75rem; letter-spacing:2px; margin-bottom:8px; }
+        .svc-desc { font-size:.88rem; color:var(--gray-dim); margin-bottom:18px; line-height:1.65; }
+        .svc-price { font-family:var(--heading); font-size:2.2rem; letter-spacing:1px; color:var(--gold); }
+        .svc-price small { font-family:var(--sub); font-size:.85rem; font-weight:400; color:var(--gray-dim); }
+        .payment-banner {
+            background:linear-gradient(135deg,rgba(255,215,0,.07),rgba(184,134,11,.04));
+            border:1px solid rgba(255,215,0,.18); border-radius:12px;
+            padding:22px 28px; text-align:center; margin-top:44px;
+        }
+        .payment-banner p { font-family:var(--sub); font-size:.97rem; font-weight:600; letter-spacing:.4px; }
+        .payment-banner .hl { color:var(--gold); }
+        .houston-callout {
+            text-align:center; margin-top:18px;
+            font-family:var(--sub); font-size:.97rem; font-weight:600; color:var(--gray); letter-spacing:1px;
+        }
+        .houston-callout span { color:var(--gold); }
+
+        /* === REVIEWS === */
+        #reviews { background:var(--black-2); }
+        .reviews-hdr { text-align:center; margin-bottom:56px; }
+        .reviews-hdr .gold-line { margin:0 auto; }
+        .review-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:22px; margin-bottom:72px; }
+        .review-card {
+            background:var(--black-3); border:1px solid rgba(255,215,0,.11);
+            border-radius:12px; padding:26px;
+            transition:transform var(--t), box-shadow var(--t);
+        }
+        .review-card:hover { transform:translateY(-4px); box-shadow:0 8px 28px rgba(255,215,0,.11); }
+        .review-stars { color:var(--gold); font-size:1rem; letter-spacing:2px; margin-bottom:14px; }
+        .review-text { font-size:.93rem; color:var(--gray); line-height:1.8; margin-bottom:18px; font-style:italic; }
+        .review-author { display:flex; align-items:center; gap:12px; }
+        .review-ava {
+            width:38px; height:38px; flex-shrink:0;
+            background:linear-gradient(135deg,var(--gold),var(--gold-dark));
+            border-radius:50%; display:flex; align-items:center; justify-content:center;
+            font-family:var(--heading); font-size:.95rem; color:var(--black);
+        }
+        .review-name { font-family:var(--sub); font-weight:700; font-size:.88rem; letter-spacing:1px; }
+        .review-loc { font-size:.76rem; color:var(--gray-dim); }
+        .review-form-wrap { max-width:680px; margin:0 auto; }
+        .review-form-wrap h3 { font-family:var(--heading); font-size:2rem; letter-spacing:2px; margin-bottom:6px; }
+        .review-form-wrap .sub { color:var(--gray-dim); font-size:.88rem; margin-bottom:28px; }
+
+        /* star rating */
+        .star-rating { display:flex; flex-direction:row-reverse; justify-content:flex-end; gap:6px; margin-bottom:20px; }
+        .star-rating input { display:none; }
+        .star-rating label { font-size:1.9rem; color:rgba(255,255,255,.18); cursor:pointer; transition:color var(--t), transform var(--t); }
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label { color:var(--gold); }
+        .star-rating label:hover { transform:scale(1.2); }
+
+        /* forms */
+        .form-group { margin-bottom:18px; }
+        .form-group label {
+            display:block; font-family:var(--sub); font-weight:600;
+            font-size:.82rem; letter-spacing:1px; text-transform:uppercase; color:var(--gray); margin-bottom:7px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width:100%; background:var(--black-3); border:1px solid rgba(255,255,255,.09);
+            border-radius:8px; padding:13px 15px;
+            font-family:var(--body); font-size:.93rem; color:var(--white);
+            outline:none; -webkit-appearance:none; appearance:none;
+            transition:border-color var(--t), box-shadow var(--t);
+        }
+        .form-group select {
+            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23FFD700' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat:no-repeat; background-position:right 14px center; padding-right:40px; cursor:pointer;
+        }
+        .form-group select option { background:var(--black-3); color:var(--white); }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(255,215,0,.09); }
+        .form-group textarea { resize:vertical; min-height:110px; }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .form-success {
+            display:none; background:linear-gradient(135deg,rgba(255,215,0,.09),rgba(184,134,11,.04));
+            border:1px solid rgba(255,215,0,.28); border-radius:12px;
+            padding:32px; text-align:center;
+        }
+        .form-success.show { display:block; }
+        .form-success .check { font-size:2.8rem; display:block; margin-bottom:10px; }
+        .form-success h4 { font-family:var(--heading); font-size:1.8rem; letter-spacing:2px; color:var(--gold); margin-bottom:8px; }
+        .form-success p { color:var(--gray); font-size:.92rem; }
+
+        /* === BOOKING === */
+        #booking { background:var(--black); }
+        .booking-wrap { display:grid; grid-template-columns:1fr 2fr; gap:56px; align-items:start; }
+        .booking-info h2 { font-family:var(--heading); font-size:2.8rem; letter-spacing:2px; line-height:1.1; margin-bottom:14px; }
+        .booking-info h2 span { color:var(--gold); }
+        .booking-info > p { color:var(--gray); font-size:.93rem; line-height:1.8; margin-bottom:28px; }
+        .booking-feats { list-style:none; display:flex; flex-direction:column; gap:10px; }
+        .booking-feats li { display:flex; align-items:center; gap:10px; font-family:var(--sub); font-weight:600; font-size:.88rem; color:var(--gray); }
+        .booking-feats li::before { content:'✦'; color:var(--gold); font-size:.68rem; }
+        .booking-card { background:var(--black-2); border:1px solid rgba(255,215,0,.11); border-radius:16px; padding:38px; }
+        .pay-note { background:var(--black-3); border-left:3px solid var(--gold); padding:14px 18px; border-radius:0 8px 8px 0; margin-bottom:26px; }
+        .pay-note p { font-family:var(--sub); font-weight:600; font-size:.84rem; color:var(--gray); line-height:1.65; margin:0; }
+        .pay-note span { color:var(--gold); }
+
+        /* === FOOTER === */
+        #contact { background:var(--black-3); border-top:1px solid rgba(255,215,0,.08); padding:60px 0 36px; }
+        .footer-grid { display:grid; grid-template-columns:2fr 1fr 1fr; gap:52px; margin-bottom:44px; }
+        .footer-brand .nav-logo { margin-bottom:14px; }
+        .footer-brand p { color:var(--gray-dim); font-size:.88rem; line-height:1.75; max-width:300px; }
+        .social-links { display:flex; gap:10px; margin-top:20px; }
+        .social-link {
+            width:38px; height:38px; background:rgba(255,215,0,.07);
+            border:1px solid rgba(255,215,0,.14); border-radius:8px;
+            display:flex; align-items:center; justify-content:center; font-size:1rem;
+            transition:background var(--t), border-color var(--t), transform var(--t);
+        }
+        .social-link:hover { background:var(--gold); border-color:var(--gold); color:var(--black); transform:translateY(-3px); }
+        .footer-col h4 { font-family:var(--sub); font-weight:700; font-size:.82rem; letter-spacing:3px; text-transform:uppercase; color:var(--gold); margin-bottom:18px; }
+        .footer-col ul { list-style:none; }
+        .footer-col ul li { color:var(--gray-dim); font-size:.88rem; margin-bottom:10px; display:flex; align-items:flex-start; gap:8px; line-height:1.5; }
+        .footer-col ul li .ic { color:var(--gold); flex-shrink:0; }
+        .footer-col ul li a:hover { color:var(--gold); }
+        .footer-bot { border-top:1px solid rgba(255,255,255,.05); padding-top:22px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+        .footer-bot p { color:var(--gray-dim); font-size:.78rem; }
+        .footer-bot .loc { font-family:var(--sub); font-size:.82rem; color:var(--gold); letter-spacing:1px; }
+
+        /* === RESPONSIVE === */
+        @media(max-width:1024px) {
+            .about-grid { grid-template-columns:1fr; gap:44px; }
+            .booking-wrap { grid-template-columns:1fr; gap:36px; }
+            .footer-grid { grid-template-columns:1fr 1fr; gap:36px; }
+        }
+        @media(max-width:768px) {
+            section { padding:68px 0; }
+            .nav-links { display:none; }
+            .hamburger { display:flex; }
+            .form-row { grid-template-columns:1fr; }
+            .founders-grid { grid-template-columns:1fr 1fr; }
+            .footer-grid { grid-template-columns:1fr; gap:28px; }
+            .footer-bot { flex-direction:column; text-align:center; }
+            .booking-card { padding:24px; }
+        }
+        @media(max-width:480px) {
+            .founders-grid { grid-template-columns:1fr; }
+            .hero-ctas { flex-direction:column; align-items:center; }
+            .btn-primary, .btn-outline { width:100%; justify-content:center; }
+            .review-cards { grid-template-columns:1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ================================================================
+     NAVBAR
+================================================================ -->
+<nav id="navbar">
+    <a href="#home" class="nav-logo"><span class="star">★</span> SHYN DETAILS</a>
+    <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#services">Services &amp; Pricing</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#booking" class="nav-cta">Book Now</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+    <ul>
+        <li><a href="#home"     class="ml">Home</a></li>
+        <li><a href="#about"    class="ml">About Us</a></li>
+        <li><a href="#services" class="ml">Services &amp; Pricing</a></li>
+        <li><a href="#reviews"  class="ml">Reviews</a></li>
+        <li><a href="#booking"  class="ml nav-cta">Book Now</a></li>
+    </ul>
+</div>
+
+<!-- ================================================================
+     HERO
+================================================================ -->
+<section id="home">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-spotlight"></div>
+    <div class="hero-content">
+        <div class="hero-badge"><span>★</span> Houston's Mobile Detailers</div>
+        <h1 class="hero-title">GET THE ULTIMATE SHINE WITH SHYN DETAILS</h1>
+        <p class="hero-sub">Houston's Premier Mobile Auto Detailing</p>
+        <div class="hero-ctas">
+            <a href="#booking" class="btn-primary">Book Appointment</a>
+            <a href="#services" class="btn-outline">View Services</a>
+        </div>
+        <p class="hero-tagline">"Your car deserves Shyn Details."</p>
+    </div>
+    <div class="hero-scroll">
+        <div class="scroll-line"></div>
+        <span>Scroll</span>
+    </div>
+</section>
+
+<!-- ================================================================
+     ABOUT US
+================================================================ -->
+<section id="about">
+    <div class="container">
+        <div class="about-grid">
+            <div class="about-story reveal">
+                <p class="section-label">Our Story</p>
+                <h2 class="section-title">Built From <span>Purpose</span></h2>
+                <div class="gold-line"></div>
+                <p>In 2025, two Houston teenagers — Aliveer Merchant and Aaden Dickson — turned a personal tragedy into a mission that genuinely matters.</p>
+                <p>For years, Aliveer's father had neglected his car's interior. The cabin had quietly accumulated mold, dust, and toxic organic buildup — invisible hazards degrading the air he breathed every single day. After prolonged exposure, his father was diagnosed with <strong style="color:#fff;">hypersensitivity pneumonitis</strong> — a serious lung disease caused by inhaling mold spores and organic particles trapped in a vehicle's cabin.</p>
+                <p>That diagnosis changed everything. Aliveer realized that a dirty car isn't just unsightly — it's a genuine health hazard for the entire family. He reached out to his best friend Aaden Dickson, and together they launched <strong style="color:var(--gold);">Shyn Details</strong>: a mobile auto detailing service built on the conviction that clean cars protect the people inside them.</p>
+                <p>We are a dedicated team of teen entrepreneurs who take immense pride in our work and guarantee professional results on every job.</p>
+                <div class="about-callout">
+                    <strong>⚡ Fast &amp; Efficient</strong>
+                    <span>Each full service takes 1–3 hours. We value your time.</span>
+                </div>
+            </div>
+            <div class="about-right">
+                <div class="about-mission reveal d1">
+                    <h3>OUR MISSION</h3>
+                    <p>To keep Houston's cars clean and its families healthy — one detail at a time. We believe every driver deserves a vehicle that looks great, feels great, and is safe to breathe in.</p>
+                </div>
+                <div class="founders-grid">
+                    <div class="founder-card reveal d2">
+                        <div class="founder-avatar">AM</div>
+                        <p class="founder-name">Aliveer Merchant</p>
+                        <p class="founder-role">Co-Founder</p>
+                        <p class="founder-contact">Shyn Details, 2025</p>
+                    </div>
+                    <div class="founder-card reveal d3">
+                        <div class="founder-avatar">AD</div>
+                        <p class="founder-name">Aaden Dickson</p>
+                        <p class="founder-role">Owner &amp; Sales Manager</p>
+                        <p class="founder-contact">📞 346-890-2841</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================================================================
+     SERVICES & PRICING
+================================================================ -->
+<section id="services">
+    <div class="container">
+        <div class="services-hdr reveal">
+            <p class="section-label">What We Offer</p>
+            <h2 class="section-title">Services &amp; <span>Pricing</span></h2>
+            <div class="gold-line" style="margin:0 auto 14px;"></div>
+            <p class="services-disclaimer">* All prices variable based on vehicle condition and size.</p>
+        </div>
+
+        <div class="svc-group">
+            <h3 class="svc-group-title reveal">Full Detail Services</h3>
+            <div class="svc-cards">
+                <div class="svc-card reveal d1">
+                    <span class="svc-icon">🚗</span>
+                    <p class="svc-name">Sedan</p>
+                    <p class="svc-desc">Complete interior &amp; exterior detail — vacuum, shampoo, wipe-down, wash, wax &amp; polish.</p>
+                    <p class="svc-price">$150 <small>full detail</small></p>
+                </div>
+                <div class="svc-card reveal d2">
+                    <span class="svc-icon">🚙</span>
+                    <p class="svc-name">Small SUV</p>
+                    <p class="svc-desc">Full interior &amp; exterior detail for compact SUVs and crossovers. Thorough top to bottom.</p>
+                    <p class="svc-price">$200 <small>full detail</small></p>
+                </div>
+                <div class="svc-card reveal d3">
+                    <span class="svc-icon">🛻</span>
+                    <p class="svc-name">SUV / Truck</p>
+                    <p class="svc-desc">Full detail for full-size SUVs, trucks, and large vehicles. Deep clean inside and out.</p>
+                    <p class="svc-price">$250 <small>full detail</small></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="svc-group">
+            <h3 class="svc-group-title reveal">Focused Services <span style="font-size:.78rem;color:var(--gray-dim);font-weight:400;letter-spacing:1px;">(Starting Prices)</span></h3>
+            <div class="svc-cards">
+                <div class="svc-card reveal d1">
+                    <span class="svc-icon">🧹</span>
+                    <p class="svc-name">Interior Clean</p>
+                    <p class="svc-desc">Full interior focus: vacuum, steam clean, wipe-down, odor treatment, and surface polish.</p>
+                    <p class="svc-price">From $100 <small>starting</small></p>
+                </div>
+                <div class="svc-card reveal d2">
+                    <span class="svc-icon">✨</span>
+                    <p class="svc-name">Exterior Clean</p>
+                    <p class="svc-desc">Wax, polish, hand wash, tire shine &amp; paint protection. Your exterior will gleam.</p>
+                    <p class="svc-price">From $100 <small>starting</small></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="payment-banner reveal">
+            <p>💳 <span class="hl">We prefer cash</span> · Also accept: <span class="hl">Apple Pay</span> · <span class="hl">Cash App</span> · <span class="hl">Zelle</span> · <span class="hl">Venmo</span></p>
+        </div>
+        <p class="houston-callout reveal" style="margin-top:18px;">📍 We come to <span>YOU</span> anywhere in the Houston area.</p>
+    </div>
+</section>
+
+<!-- ================================================================
+     REVIEWS
+================================================================ -->
+<section id="reviews">
+    <div class="container">
+        <div class="reviews-hdr reveal">
+            <p class="section-label">What Clients Say</p>
+            <h2 class="section-title">Customer <span>Reviews</span></h2>
+            <div class="gold-line" style="margin:0 auto;"></div>
+        </div>
+
+        <div class="review-cards">
+            <div class="review-card reveal d1">
+                <div class="review-stars">★★★★★</div>
+                <p class="review-text">"Aliveer and Aaden showed up right on time and absolutely transformed my Camry. They got stains out of my seats I thought were permanent. The interior looks brand new — best $150 I've spent all year. Booking again next month."</p>
+                <div class="review-author">
+                    <div class="review-ava">MR</div>
+                    <div><p class="review-name">Marcus R.</p><p class="review-loc">Katy, TX · Full Detail</p></div>
+                </div>
+            </div>
+            <div class="review-card reveal d2">
+                <div class="review-stars">★★★★★</div>
+                <p class="review-text">"I was skeptical because they're young, but these guys are PROFESSIONAL. My SUV smells incredible and the exterior shine is unreal. They came right to my driveway in Sugar Land. No tip was big enough, honestly."</p>
+                <div class="review-author">
+                    <div class="review-ava">JT</div>
+                    <div><p class="review-name">Jessica T.</p><p class="review-loc">Sugar Land, TX · Full SUV Detail</p></div>
+                </div>
+            </div>
+            <div class="review-card reveal d3">
+                <div class="review-stars">★★★★★</div>
+                <p class="review-text">"My F-150 had dog hair and mud caked everywhere. Shyn Details made it look like it just rolled off the lot. Fast, thorough, super respectful. These young men are going places — book them before they get too busy!"</p>
+                <div class="review-author">
+                    <div class="review-ava">DW</div>
+                    <div><p class="review-name">DeShawn W.</p><p class="review-loc">Pearland, TX · Truck Full Detail</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leave a Review -->
+        <div class="review-form-wrap">
+            <h3 class="reveal">Leave a <span style="color:var(--gold);">Review</span></h3>
+            <p class="sub reveal">Share your experience with the Shyn Details community.</p>
+
+            <form id="reviewForm" class="reveal">
+                <div class="form-group">
+                    <label for="reviewName">Your Name</label>
+                    <input type="text" id="reviewName" name="reviewer_name" placeholder="e.g., John S." required>
+                </div>
+                <div class="form-group">
+                    <label>Star Rating</label>
+                    <div class="star-rating">
+                        <input type="radio" id="s5" name="rating" value="5"><label for="s5">★</label>
+                        <input type="radio" id="s4" name="rating" value="4"><label for="s4">★</label>
+                        <input type="radio" id="s3" name="rating" value="3"><label for="s3">★</label>
+                        <input type="radio" id="s2" name="rating" value="2"><label for="s2">★</label>
+                        <input type="radio" id="s1" name="rating" value="1"><label for="s1">★</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reviewText">Your Review</label>
+                    <textarea id="reviewText" name="review_message" placeholder="Tell others about your experience..." required></textarea>
+                </div>
+                <button type="submit" class="btn-primary" id="reviewBtn" style="width:100%;justify-content:center;">Submit Review</button>
+            </form>
+
+            <div class="form-success" id="reviewSuccess">
+                <span class="check">⭐</span>
+                <h4>THANK YOU!</h4>
+                <p>Your review has been submitted. We truly appreciate the kind words!</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================================================================
+     BOOK AN APPOINTMENT
+================================================================ -->
+<section id="booking">
+    <div class="container">
+        <div class="booking-wrap">
+            <div class="booking-info reveal">
+                <p class="section-label">Get Started</p>
+                <h2>Book Your <span>Detail</span></h2>
+                <div class="gold-line"></div>
+                <p>Ready for the ultimate clean? Fill out the form and we'll confirm your appointment shortly. We come to you — anywhere in the Houston area.</p>
+                <ul class="booking-feats">
+                    <li>We come to your location</li>
+                    <li>Flexible scheduling</li>
+                    <li>Pay after service completion</li>
+                    <li>1–3 hour service window</li>
+                    <li>Professional results guaranteed</li>
+                </ul>
+            </div>
+
+            <div class="booking-card reveal d1">
+                <div class="pay-note">
+                    <p>💰 <span>Payment is collected AFTER your detail is complete.</span> We accept: Cash (preferred), Apple Pay, Cash App, Zelle, Venmo.</p>
+                </div>
+
+                <form id="bookingForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bkName">Full Name *</label>
+                            <input type="text" id="bkName" name="client_name" placeholder="Your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bkPhone">Phone Number *</label>
+                            <input type="tel" id="bkPhone" name="client_phone" placeholder="(713) 000-0000" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bkEmail">Email Address *</label>
+                        <input type="email" id="bkEmail" name="client_email" placeholder="you@example.com" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bkVehicle">Vehicle Type *</label>
+                            <select id="bkVehicle" name="vehicle_type" required>
+                                <option value="" disabled selected>Select vehicle</option>
+                                <option>Sedan</option>
+                                <option>Small SUV</option>
+                                <option>SUV / Truck</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bkService">Service *</label>
+                            <select id="bkService" name="service_type" required>
+                                <option value="" disabled selected>Select service</option>
+                                <option>Full Detail</option>
+                                <option>Interior Clean</option>
+                                <option>Exterior Clean</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bkDate">Preferred Date *</label>
+                            <input type="date" id="bkDate" name="preferred_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bkTime">Preferred Time *</label>
+                            <input type="time" id="bkTime" name="preferred_time" min="08:00" max="18:00" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bkAddress">Your Houston Address *</label>
+                        <input type="text" id="bkAddress" name="client_address" placeholder="123 Main St, Houston, TX 77001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bkNotes">Additional Notes <span style="color:var(--gray-dim);font-weight:400;">(optional)</span></label>
+                        <textarea id="bkNotes" name="additional_notes" placeholder="Special requests, gate codes, vehicle details…"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary" id="bookingBtn" style="width:100%;justify-content:center;font-size:1rem;padding:16px;">
+                        Send Appointment Request ✦
+                    </button>
+                </form>
+
+                <div class="form-success" id="bookingSuccess">
+                    <span class="check">✅</span>
+                    <h4>REQUEST SENT!</h4>
+                    <p>Your appointment request has been sent! We'll confirm with you shortly.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================================================================
+     FOOTER / CONTACT
+================================================================ -->
+<footer id="contact">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="#home" class="nav-logo"><span class="star">★</span> SHYN DETAILS</a>
+                <p>Houston's premier mobile auto detailing. We come to you. Professional results, every time. Your car deserves Shyn Details.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link" title="Instagram" aria-label="Instagram">📷</a>
+                    <a href="#" class="social-link" title="TikTok"    aria-label="TikTok">🎵</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <ul>
+                    <li><span class="ic">📞</span><span>Aaden Dickson (Owner &amp; Sales Manager)<br>346-890-2841</span></li>
+                    <li><span class="ic">✉️</span><a href="mailto:shyndetails1@gmail.com" style="color:inherit;">shyndetails1@gmail.com</a></li>
+                    <li><span class="ic">📍</span>Houston, TX &amp; surrounding areas</li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><span class="ic">→</span><a href="#about">About Us</a></li>
+                    <li><span class="ic">→</span><a href="#services">Services &amp; Pricing</a></li>
+                    <li><span class="ic">→</span><a href="#reviews">Reviews</a></li>
+                    <li><span class="ic">→</span><a href="#booking">Book Appointment</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bot">
+            <p>© 2025 Shyn Details. All rights reserved.</p>
+            <p class="loc">📍 Houston, TX · Serving all surrounding areas</p>
+        </div>
+    </div>
+</footer>
+
+<!-- ================================================================
+     JAVASCRIPT
+================================================================ -->
+<script>
+// ================================================================
+// EMAILJS — REPLACE THESE 4 VALUES WITH YOUR REAL CREDENTIALS
+// ----------------------------------------------------------------
+// How to get them:
+//   PUBLIC_KEY   → emailjs.com → Account → API Keys
+//   SERVICE_ID   → emailjs.com → Email Services → your service ID
+//   BOOKING_TMPL → emailjs.com → Email Templates → booking template ID
+//   REVIEW_TMPL  → emailjs.com → Email Templates → review template ID
+// ================================================================
+const EJ_PUBLIC_KEY   = "YOUR_PUBLIC_KEY";          // e.g. "AbCdEfGhIjKlMnOp"
+const EJ_SERVICE_ID   = "YOUR_SERVICE_ID";          // e.g. "service_abc123"
+const EJ_BOOKING_TMPL = "YOUR_BOOKING_TEMPLATE_ID"; // e.g. "template_bk001"
+const EJ_REVIEW_TMPL  = "YOUR_REVIEW_TEMPLATE_ID";  // e.g. "template_rv001"
+
+emailjs.init(EJ_PUBLIC_KEY);
+
+// ── Navbar scroll effect ──────────────────────────────────────────
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// ── Hamburger menu ────────────────────────────────────────────────
+const ham  = document.getElementById('hamburger');
+const mNav = document.getElementById('mobileMenu');
+ham.addEventListener('click', () => {
+    ham.classList.toggle('open');
+    mNav.classList.toggle('open');
+});
+document.querySelectorAll('.ml').forEach(l => l.addEventListener('click', () => {
+    ham.classList.remove('open');
+    mNav.classList.remove('open');
+}));
+
+// ── Scroll reveal ─────────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Date input: no past dates ─────────────────────────────────────
+document.getElementById('bkDate').min = new Date().toISOString().split('T')[0];
+
+// ── Smooth scroll (with navbar offset) ───────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+        const tgt = document.querySelector(a.getAttribute('href'));
+        if (tgt) { e.preventDefault(); window.scrollTo({ top: tgt.getBoundingClientRect().top + scrollY - 68, behavior:'smooth' }); }
+    });
+});
+
+// ── Booking form ──────────────────────────────────────────────────
+document.getElementById('bookingForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('bookingBtn');
+    btn.textContent = 'Sending…'; btn.classList.add('btn-loading');
+    const params = {
+        client_name:      document.getElementById('bkName').value,
+        client_phone:     document.getElementById('bkPhone').value,
+        client_email:     document.getElementById('bkEmail').value,
+        vehicle_type:     document.getElementById('bkVehicle').value,
+        service_type:     document.getElementById('bkService').value,
+        preferred_date:   document.getElementById('bkDate').value,
+        preferred_time:   document.getElementById('bkTime').value,
+        client_address:   document.getElementById('bkAddress').value,
+        additional_notes: document.getElementById('bkNotes').value || 'None',
+    };
+    try {
+        await emailjs.send(EJ_SERVICE_ID, EJ_BOOKING_TMPL, params);
+        document.getElementById('bookingForm').style.display = 'none';
+        document.getElementById('bookingSuccess').classList.add('show');
+    } catch(err) {
+        console.error('Booking error:', err);
+        btn.textContent = 'Send Appointment Request ✦'; btn.classList.remove('btn-loading');
+        alert('Something went wrong. Please call 346-890-2841 or email shyndetails1@gmail.com to book.');
+    }
+});
+
+// ── Review form ───────────────────────────────────────────────────
+document.getElementById('reviewForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('reviewBtn');
+    btn.textContent = 'Sending…'; btn.classList.add('btn-loading');
+    const ratingEl = document.querySelector('input[name="rating"]:checked');
+    const params = {
+        reviewer_name:  document.getElementById('reviewName').value,
+        rating:         ratingEl ? ratingEl.value + ' / 5 stars' : 'Not specified',
+        review_message: document.getElementById('reviewText').value,
+    };
+    try {
+        await emailjs.send(EJ_SERVICE_ID, EJ_REVIEW_TMPL, params);
+        document.getElementById('reviewForm').style.display = 'none';
+        document.getElementById('reviewSuccess').classList.add('show');
+    } catch(err) {
+        console.error('Review error:', err);
+        btn.textContent = 'Submit Review'; btn.classList.remove('btn-loading');
+        alert('Something went wrong. Please email shyndetails1@gmail.com directly.');
+    }
+});
+</script>
+</body>
+</html>
