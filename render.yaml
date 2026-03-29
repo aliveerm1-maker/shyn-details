@@ -1,7 +1,6 @@
 services:
-  - type: web
+  - type: static
     name: shyn-details
-    env: static
     staticPublishPath: .
     buildCommand: ""
     pullRequestPreviewsEnabled: false
